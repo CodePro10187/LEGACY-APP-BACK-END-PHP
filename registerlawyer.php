@@ -24,10 +24,10 @@ if ($conn->connect_error) {
 
 // Required fields
 $required = [
-  "firstName", "lastName", "prefix", "email", "mobileNumber", "dateOfBirth",
-  "country", "address1", "address2", "nicPassportNumber", "postalCode",
-  "securityQuestion", "answer", "password", "confirmPassword", "lawFirmName",
-  "lawFirmAddress", "professionalLicenseNumber", "licenseExpiryDate", "bio"
+    "firstName", "lastName", "prefix", "email", "mobileNumber", "dateOfBirth",
+    "country", "address1", "address2", "nicPassportNumber", "postalCode",
+    "securityQuestion", "answer", "password", "confirmPassword", "lawFirmName",
+    "lawFirmAddress", "professionalLicenseNumber", "licenseExpiryDate", "bio"
 ];
 
 foreach ($required as $field) {
@@ -56,9 +56,10 @@ if ($idQuery->num_rows > 0) {
     $nextId = "L" . str_pad($num, 3, "0", STR_PAD_LEFT);
 }
 
-// Handle file upload
+// Handle file upload for document and profile picture
 $uploadDir = "Luploads/";
 $documentPath = "";
+$profilePicturePath = "";
 
 if (isset($_FILES['documentFile']) && $_FILES['documentFile']['error'] === 0) {
     if (!is_dir($uploadDir)) {
@@ -71,7 +72,24 @@ if (isset($_FILES['documentFile']) && $_FILES['documentFile']['error'] === 0) {
         $documentPath = $targetPath;
     } else {
         http_response_code(500);
-        echo json_encode(["error" => "File upload failed."]);
+        echo json_encode(["error" => "Document file upload failed."]);
+        exit();
+    }
+}
+
+if (isset($_FILES['profilePicture']) && $_FILES['profilePicture']['error'] === 0) {
+    $profileUploadDir = "Luploads/profile_pictures/";
+    if (!is_dir($profileUploadDir)) {
+        mkdir($profileUploadDir, 0777, true);
+    }
+    $profilePictureName = time() . "_" . basename($_FILES['profilePicture']['name']);
+    $profileTargetPath = $profileUploadDir . $profilePictureName;
+
+    if (move_uploaded_file($_FILES['profilePicture']['tmp_name'], $profileTargetPath)) {
+        $profilePicturePath = $profileTargetPath;
+    } else {
+        http_response_code(500);
+        echo json_encode(["error" => "Profile picture upload failed."]);
         exit();
     }
 }
@@ -83,12 +101,12 @@ $stmt = $conn->prepare("
     country, address1, address2, nic_passport_number, postal_code,
     security_question, answer, password_hash, law_firm_name,
     law_firm_address, professional_license_number, license_expiry_date,
-    bio, document_path
+    bio, document_path, profile_picture_url
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
 $stmt->bind_param(
-  "sssssssssssssssssssss",
+  "ssssssssssssssssssssss",
   $nextId,
   $_POST['firstName'],
   $_POST['lastName'],
@@ -109,7 +127,8 @@ $stmt->bind_param(
   $_POST['professionalLicenseNumber'],
   $_POST['licenseExpiryDate'],
   $_POST['bio'],
-  $documentPath
+  $documentPath,
+  $profilePicturePath
 );
 
 if ($stmt->execute()) {

@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// DB Connection
+// DB connection
 $host = "localhost";
 $user = "root";
 $password = "";
@@ -22,9 +22,9 @@ if ($conn->connect_error) {
     exit();
 }
 
-// Get JSON input
-$data = json_decode(file_get_contents("php://input"), true);
-if (!$data) {
+$data = $_POST;
+
+if (empty($data)) {
     http_response_code(400);
     echo json_encode(["error" => "Invalid input."]);
     exit();
@@ -32,9 +32,9 @@ if (!$data) {
 
 // Validate required fields
 $required = [
-  "firstName", "lastName", "prefix", "email", "mobileNumber", "dateOfBirth",
-  "occupation", "country", "address1", "address2", "nicPassportNumber",
-  "postalCode", "securityQuestion", "answer", "password", "confirmPassword", "bio"
+    "firstName", "lastName", "prefix", "email", "mobileNumber", "dateOfBirth",
+    "occupation", "country", "address1", "address2", "nicPassportNumber",
+    "postalCode", "securityQuestion", "answer", "password", "confirmPassword", "bio"
 ];
 
 foreach ($required as $field) {
