@@ -1,0 +1,74 @@
+CREATE TABLE `beneficiaries` (
+  `id` int(11) NOT NULL,
+  `nic` varchar(20) DEFAULT NULL,
+  `personal_code` varchar(50) DEFAULT NULL,
+  `relationship` varchar(50) DEFAULT NULL,
+  `shared_count` int(11) DEFAULT 1,
+  `added_date` date DEFAULT NULL
+)
+
+CREATE TABLE `lawyers` (
+  `lawyer_id` varchar(10) NOT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `prefix` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `mobile_number` varchar(20) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `address1` text DEFAULT NULL,
+  `address2` text DEFAULT NULL,
+  `nic_passport_number` varchar(50) DEFAULT NULL,
+  `postal_code` varchar(20) DEFAULT NULL,
+  `security_question` text DEFAULT NULL,
+  `answer` text DEFAULT NULL,
+  `password_hash` varchar(255) DEFAULT NULL,
+  `law_firm_name` varchar(100) DEFAULT NULL,
+  `law_firm_address` text DEFAULT NULL,
+  `professional_license_number` varchar(100) DEFAULT NULL,
+  `license_expiry_date` date DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `document_path` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+)
+
+CREATE TABLE `users` (
+  `user_id` varchar(10) NOT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `prefix` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `mobile_number` varchar(20) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `occupation` varchar(100) DEFAULT NULL,
+  `country` varchar(100) DEFAULT NULL,
+  `address1` text DEFAULT NULL,
+  `address2` text DEFAULT NULL,
+  `nic_passport_number` varchar(50) DEFAULT NULL,
+  `postal_code` varchar(20) DEFAULT NULL,
+  `security_question` text DEFAULT NULL,
+  `answer` text DEFAULT NULL,
+  `password_hash` varchar(255) DEFAULT NULL,
+  `bio` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `personal_code` varchar(8) DEFAULT NULL
+)
+
+ALTER TABLE `beneficiaries`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nic` (`nic`);
+
+ALTER TABLE `lawyers`
+  ADD PRIMARY KEY (`lawyer_id`),
+  ADD UNIQUE KEY `email` (`email`);
+
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`user_id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `personal_code` (`personal_code`),
+  ADD UNIQUE KEY `nic_passport_number` (`nic_passport_number`);
+
+ALTER TABLE `beneficiaries`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+COMMIT;
+
