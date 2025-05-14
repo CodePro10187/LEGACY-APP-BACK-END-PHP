@@ -21,39 +21,38 @@ if ($conn->connect_error) {
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
-} // contains DB credentials
+}
 
-$data = json_decode(file_get_contents("php://input"), true);
-
-$name = trim($data["name"]);
-$personalCode = trim($data["personalCode"]);
+$beneficiaryNIC = trim($data["beneficiaryNIC"]);
+$beneficiaryPersonalCode = trim($data["beneficiaryPersonalCode"]);
 $relationship = trim($data["relationship"]);
-$sharedCount = 1;
+$userId = trim($data["userId"]);
 $addedDate = date("Y-m-d");
 
 // Validate required fields
-if (!$name || !$personalCode || !$relationship) {
+if (!$beneficiaryNIC || !$beneficiaryPersonalCode || !$relationship || !$userId) {
     echo json_encode(["success" => false, "message" => "Missing fields"]);
     exit;
 }
 
-// Check if NIC exists in the registered users table
-$checkNIC = $conn->prepare("SELECT user_id FROM users WHERE nic_passport_number = ?");
-$checkNIC->bind_param("s", $name);
-$checkNIC->execute();
-$result = $checkNIC->get_result();
+// Check if NIC and Personal Code exist in the users table
+$checkBeneficiary = $conn->prepare("SELECT user_id FROM users WHERE nic_passport_number = ? AND personal_code = ?");
+$checkBeneficiary->bind_param("ss", $beneficiaryNIC, $beneficiaryPersonalCode);
+$checkBeneficiary->execute();
+$result = $checkBeneficiary->get_result();
 
 if ($result->num_rows === 0) {
-    echo json_encode(["success" => false, "message" => "NIC not found in registered users."]);
+    echo json_encode(["success" => false, "message" => "Beneficiary NIC and Personal Code not found in registered users."]);
     exit;
 }
 
 // Insert beneficiary record
-$stmt = $conn->prepare("INSERT INTO beneficiaries (nic, personal_code, relationship, shared_count, added_date) VALUES (?, ?, ?, ?, ?)");
-$stmt->bind_param("sssis", $name, $personalCode, $relationship, $sharedCount, $addedDate);
+$stmt = $conn->prepare("INSERT INTO beneficiaries (user_id, beneficiary_id, relationship, added_date) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("sssis", $userId, $beneficiaryNIC, $relationship, $addedDate);
 
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Beneficiary added successfully"]);
 } else {
     echo json_encode(["success" => false, "message" => "Failed to add beneficiary"]);
 }
+?>

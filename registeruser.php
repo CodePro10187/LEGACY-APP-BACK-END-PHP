@@ -22,6 +22,11 @@ if ($conn->connect_error) {
     exit();
 }
 
+// Function to generate a unique personal code
+function generatePersonalCode() {
+    return strtoupper(uniqid('PC') . bin2hex(random_bytes(2))); // Example: PC6637D12C9A32A1F2
+}
+
 $data = $_POST;
 
 if (empty($data)) {
@@ -63,17 +68,19 @@ if ($idQuery->num_rows > 0) {
     $nextId = "U" . str_pad($num, 3, "0", STR_PAD_LEFT);
 }
 
-// Insert into DB
+// Generate unique personal_code
+$personalCode = generatePersonalCode();
+
 $stmt = $conn->prepare("
   INSERT INTO users (
     user_id, first_name, last_name, prefix, email, mobile_number, date_of_birth,
     occupation, country, address1, address2, nic_passport_number, postal_code,
-    security_question, answer, password_hash, bio
-  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    personal_code, security_question, answer, password_hash, bio
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ");
 
 $stmt->bind_param(
-  "sssssssssssssssss",
+  "ssssssssssssssssss",
   $nextId,
   $data['firstName'],
   $data['lastName'],
@@ -87,14 +94,17 @@ $stmt->bind_param(
   $data['address2'],
   $data['nicPassportNumber'],
   $data['postalCode'],
+  $personalCode,
   $data['securityQuestion'],
   $data['answer'],
   $passwordHash,
   $data['bio']
 );
 
+
 if ($stmt->execute()) {
-    echo json_encode(["success" => true, "user_id" => $nextId]);
+    echo json_encode(["success" => true, "user_id" => $nextId, "personal_code" => $personalCode]);
+
 } else {
     http_response_code(500);
     echo json_encode(["error" => "Registration failed: " . $stmt->error]);

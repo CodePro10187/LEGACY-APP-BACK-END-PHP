@@ -1,0 +1,6 @@
+create_box.php - file_boxes
+delete_file.php - file_box_files
+get_box_details.php - file_boxes, file_box_files
+get_user_boxes.php - file_boxes
+get_users.php - users
+upload_file.php - file_box_files
