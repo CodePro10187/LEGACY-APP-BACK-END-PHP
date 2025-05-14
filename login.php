@@ -34,16 +34,13 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     if (password_verify($password, $row['password_hash'])) {
         $userData = $conn->query("SELECT * FROM users WHERE user_id = '{$row['user_id']}'")->fetch_assoc();
-        unset($userData['password_hash']); // For security
+unset($userData['password_hash']); // For security
+echo json_encode([
+    "success" => true,
+    "userType" => "user",
+    "user" => $userData
+]);
 
-        // Add personal_code to the response
-        $userData['personal_code'] = $row['personal_code']; // Include personal_code
-
-        echo json_encode([
-            "success" => true,
-            "userType" => "user",
-            "user" => $userData
-        ]);
         exit();
     }
 }
@@ -56,16 +53,13 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     if (password_verify($password, $row['password_hash'])) {
         $lawyerData = $conn->query("SELECT * FROM lawyers WHERE lawyer_id = '{$row['lawyer_id']}'")->fetch_assoc();
-        unset($lawyerData['password_hash']); // For security
+unset($lawyerData['password_hash']);
+echo json_encode([
+    "success" => true,
+    "userType" => "lawyer",
+    "user" => $lawyerData
+]);
 
-        // Add personal_code to the response (if available in the lawyers table)
-        $lawyerData['personal_code'] = $row['personal_code']; // Include personal_code
-
-        echo json_encode([
-            "success" => true,
-            "userType" => "lawyer",
-            "user" => $lawyerData
-        ]);
         exit();
     }
 }
